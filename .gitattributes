@@ -1,0 +1,6 @@
+# Shell scripts and the Dockerfile must keep LF endings: a CRLF shebang makes
+# the container entrypoint fail with "env: 'bash\r': No such file or directory".
+* text=auto
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
