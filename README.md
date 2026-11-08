@@ -225,5 +225,3 @@ Participant and supervisor endpoints are listed at the top of
   localhost.
 - The platform source is copied into the image at build time, so a code change
   needs `docker compose up --build -d`, not a restart.
-- `report.pdf` is the seven-page written report (Persian) and
-  `hw2-video-lowsize.mp4` is the demo recording.
