@@ -87,6 +87,19 @@ To reset everything, including the database volumes:
 docker compose down -v
 ```
 
+### Published image
+
+The image is on Docker Hub and one image serves every role, selected with the
+`ROLE` environment variable (`shard`, `gateway`, `coordinator`, `shardmap`,
+`selfhealer`):
+
+```bash
+docker pull kouroshetezad/distributed-banking-platform:latest
+```
+
+`docker-compose.yml` still builds locally under the tag `bank/shard:latest`, so
+pull the published image when you want to run the stack without building.
+
 ## Running without Docker
 
 ```bash
