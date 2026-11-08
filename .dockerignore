@@ -9,4 +9,5 @@ data
 *.db-shm
 *.pdf
 *.docx
+*.mp4
 _probe_*.py
