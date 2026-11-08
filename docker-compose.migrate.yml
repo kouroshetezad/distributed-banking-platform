@@ -1,0 +1,32 @@
+name: bank
+
+services:
+
+  shard-c-1:
+    build: .
+    image: bank/shard:latest
+    environment:
+      ROLE: shard
+      CLUSTER: compose
+      SHARD_PORT: "8080"
+      SHARD: C
+      SHARD_DB: /data/shard-C.db
+    volumes:
+      - shard_c:/data
+    networks: [banknet]
+
+  shard-c-2:
+    build: .
+    image: bank/shard:latest
+    environment:
+      ROLE: shard
+      CLUSTER: compose
+      SHARD_PORT: "8080"
+      SHARD: C
+      SHARD_DB: /data/shard-C.db
+    volumes:
+      - shard_c:/data
+    networks: [banknet]
+
+volumes:
+  shard_c:

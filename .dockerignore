@@ -1,0 +1,12 @@
+# Build context hygiene: keep data, caches and the report out of the image.
+.git
+.gitignore
+**/__pycache__
+**/*.pyc
+data
+*.db
+*.db-wal
+*.db-shm
+*.pdf
+*.docx
+_probe_*.py

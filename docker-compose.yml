@@ -1,0 +1,136 @@
+
+name: bank
+
+x-shard-env: &shard-env
+  ROLE: shard
+  CLUSTER: compose
+  SHARD_PORT: "8080"
+  REGISTRY_DB_PATH: /data/registry.db
+
+services:
+
+  shard-a-1:
+    build: .
+    image: bank/shard:latest
+    environment:
+      <<: *shard-env
+      SHARD: A
+      SHARD_DB: /data/shard-A.db
+    volumes:
+      - shard_a:/data
+    networks: [banknet]
+
+  shard-a-2:
+    build: .
+    image: bank/shard:latest
+    environment:
+      <<: *shard-env
+      SHARD: A
+      SHARD_DB: /data/shard-A.db
+    volumes:
+      - shard_a:/data
+    networks: [banknet]
+
+  shard-b-1:
+    build: .
+    image: bank/shard:latest
+    environment:
+      <<: *shard-env
+      SHARD: B
+      SHARD_DB: /data/shard-B.db
+    volumes:
+      - shard_b:/data
+    networks: [banknet]
+
+  shard-b-2:
+    build: .
+    image: bank/shard:latest
+    environment:
+      <<: *shard-env
+      SHARD: B
+      SHARD_DB: /data/shard-B.db
+    volumes:
+      - shard_b:/data
+    networks: [banknet]
+
+  shardmap:
+    build: .
+    image: bank/shard:latest
+    environment:
+      ROLE: shardmap
+      SHARDMAP_PORT: "8500"
+      REGISTRY_DB_PATH: /data/registry.db
+      GATEWAY_URL: http://gateway:8000
+      SHARD_RANGES: A:A0001-A1000,B:A1001-A2000
+      SHARD_REPLICAS: >-
+        A:http://shard-a-1:8080|http://shard-a-2:8080,
+        B:http://shard-b-1:8080|http://shard-b-2:8080
+    ports:
+      - "8500:8500"
+    volumes:
+      - registry:/data
+    networks: [banknet]
+
+  gateway:
+    build: .
+    image: bank/shard:latest
+    environment:
+      ROLE: gateway
+      GATEWAY_PORT: "8000"
+      REGISTRY_DB_PATH: /data/registry.db
+      COORDINATOR_URL: http://coordinator:8100
+      SHARD_RANGES: A:A0001-A1000,B:A1001-A2000
+      SHARD_REPLICAS: >-
+        A:http://shard-a-1:8080|http://shard-a-2:8080,
+        B:http://shard-b-1:8080|http://shard-b-2:8080
+      REPLICA_STRATEGY: least_connections
+    ports:
+      - "8000:8000"
+    volumes:
+      - registry:/data
+    depends_on: [shardmap]
+    networks: [banknet]
+
+  coordinator:
+    build: .
+    image: bank/shard:latest
+    environment:
+      ROLE: coordinator
+      COORDINATOR_PORT: "8100"
+      COORDINATOR_DB_PATH: /data/coordinator.db
+      GATEWAY_URL: http://gateway:8000
+    ports:
+      - "8100:8100"
+    volumes:
+      - coordinator:/data
+    depends_on: [gateway]
+    networks: [banknet]
+
+  selfhealer:
+    build: .
+    image: bank/shard:latest
+    environment:
+      ROLE: selfhealer
+      REGISTRY_DB_PATH: /data/registry.db
+      DESIRED_REPLICAS: "2"
+      HEAL_INTERVAL: "2.0"
+      HEAL_TIMEOUT: "2.0"
+      COMPOSE_PROJECT: bank
+      BANK_NETWORK: bank_banknet
+      SHARD_IMAGE: bank/shard:latest
+      DOCKER_SOCK: /var/run/docker.sock
+    volumes:
+      - registry:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on: [shardmap]
+    networks: [banknet]
+
+volumes:
+  shard_a:
+  shard_b:
+  registry:
+  coordinator:
+
+networks:
+  banknet:
+    driver: bridge

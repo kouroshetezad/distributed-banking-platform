@@ -1,0 +1,14 @@
+# Assignment 2 - Distributed Banking Platform
+#
+# Same policy as Assignment 1: the platform itself runs on the Python standard
+# library only (http.server, sqlite3, threading, urllib, json, argparse...),
+# so nothing has to be installed inside the containers.
+#
+# The single exception is the self-healing controller (Expert Bonus II), which
+# needs the Docker Engine API. It is given the option of talking to the Docker
+# daemon over the plain HTTP socket (urllib, no dependency at all, and the
+# default) or through the `docker` CLI. `docker` is only listed here so that a
+# developer who wants the SDK route can install it; the compose file installs
+# nothing.
+#
+# docker>=6.0.0   # optional, not used by default
